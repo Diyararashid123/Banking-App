@@ -14,9 +14,11 @@ import { Input } from "@/components/ui/input"
 import { z } from 'zod'
 import { AuthFormSchema } from '@/lib/utils'
 
+const formschema = AuthFormSchema('sign-up');
+
 interface CustomInput {
-  control:Control<z.infer<typeof AuthFormSchema>>,
-  name: FieldPath<z.infer<typeof AuthFormSchema>>,
+  control:Control<z.infer<typeof formschema>>,
+  name: FieldPath<z.infer<typeof formschema>>,
   label: string,
   placeholder: string,
 }
