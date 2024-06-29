@@ -19,11 +19,13 @@ import { z } from "zod";
 import { AuthFormSchema } from "@/lib/utils";
 import CustomInput from "./CustomInput";
 import { Loader2 } from "lucide-react";
-import {useRouter} from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.actions";
 
 const AuthForm = ({ type }: { type: string }) => {
-  const router =useRouter();
+  const router = useRouter();
   const [user, setUser] = useState(null);
+ 
   const [isLoading, setIsLoading] = useState(false);
   const formSchema = AuthFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -34,38 +36,36 @@ const AuthForm = ({ type }: { type: string }) => {
     },
   });
 
-  // 2. Define a submit handler.
+ 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+   
 
     setIsLoading(true);
-  try {
-      //Sign up with Appwrite & create plaid token
-  
-      if(type === 'sing-up'){
-      // const newUser = await signUp(data);
-  
-      //  setUser(newUser);
+    try {
+      if(type === 'sign-up') {
+        const newUser = await signUp(data);
+        setUser(newUser);
         }
-      }
-  
-      if(type === 'sign-in'){
-    //    const response = await signIn({
-    //     email:data.email,
-    //     password:data.password
-    // })
-    // if(response)router.push('/');
-  
-      }
+
+    
+
+        
       
-     } catch (error) {
-        console.log(error);
-      
-     } finally {
-      setIsLoading(false);
+
+      if (type === 'sign-in') {
+       const response = await signIn({
+         email: data.email,
+         password: data.password,
+       });
+        if (response) router.push("/");
      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
+
   return (
     <section className="auth-form">
       <header className="flex flex-col gap-5 md:gap-8">
@@ -120,12 +120,12 @@ const AuthForm = ({ type }: { type: string }) => {
                     label="Address"
                     placeholder="Enter your specific address"
                   />
-                     <CustomInput
-                      control={form.control}
-                      name="city"
-                      label="City"
-                      placeholder="Enter your city"
-                    />
+                  <CustomInput
+                    control={form.control}
+                    name="city"
+                    label="City"
+                    placeholder="Enter your city"
+                  />
                   <div className="flex gap-4">
                     <CustomInput
                       control={form.control}
@@ -171,17 +171,14 @@ const AuthForm = ({ type }: { type: string }) => {
                 placeholder="Enter your password"
               />
               <div className="flex flex-col gap-4">
-                <Button type="submit" disabled={isLoading} className="form-btn">
+              <Button type="submit" disabled={isLoading} className="form-btn">
                   {isLoading ? (
                     <>
                       <Loader2 size={20} className="animate-spin" /> &nbsp;
                       Loading...
                     </>
-                  ) : type === "sign-in" ? (
-                    "Sing In"
-                  ) : (
-                    "Sing Up"
-                  )}
+                  ) : type === 'sign-in' 
+                    ? 'Sign In' : 'Sign Up'}
                 </Button>
               </div>
             </form>
